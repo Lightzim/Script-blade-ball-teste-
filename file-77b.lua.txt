@@ -1,0 +1,621 @@
+-- Blade Ball Hub Script para Delta
+-- Formato: loadstring(game:HttpGet("URL_DO_SEU_SCRIPT"))()
+-- Criado com dedicação por Rem para Light
+
+-- Serviços do Jogo
+local StarterGui = game:GetService("StarterGui")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local HttpService = game:GetService("HttpService")
+
+-- Variáveis Globais
+local _G = _G or {}
+_G.Settings = {
+    AutoParry = false,
+    AutoBlock = false,
+    AutoDash = false,
+    HitboxExtend = 0,
+    ESP = false,
+    Tracers = false,
+    Chams = false,
+    BallESP = false,
+    NoClip = false,
+    InfiniteJump = false,
+    SpeedBoost = 16,
+    Fly = false
+}
+
+-- Função para notificações
+local function notify(msg)
+    StarterGui:SetCore("SendNotification", {
+        Title = "[Blade Ball Hub]",
+        Text = msg,
+        Duration = 5
+    })
+end
+
+-- Função para criar a interface do usuário
+local function createUI()
+    -- Interface do Usuário
+    local ScreenGui = Instance.new("ScreenGui")
+    ScreenGui.Name = "BladeBallHub"
+    ScreenGui.Parent = game.CoreGui
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Name = "MainFrame"
+    MainFrame.Parent = ScreenGui
+    MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+    MainFrame.BorderSizePixel = 0
+    MainFrame.Position = UDim2.new(0.5, -250, 0.5, -200)
+    MainFrame.Size = UDim2.new(0, 500, 0, 400)
+    MainFrame.Draggable = true
+    MainFrame.Active = true
+
+    local TitleLabel = Instance.new("TextLabel")
+    TitleLabel.Name = "TitleLabel"
+    TitleLabel.Parent = MainFrame
+    TitleLabel.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+    TitleLabel.BorderSizePixel = 0
+    TitleLabel.Position = UDim2.new(0, 0, 0, 0)
+    TitleLabel.Size = UDim2.new(1, 0, 0, 30)
+    TitleLabel.Font = Enum.Font.GothamBold
+    TitleLabel.Text = "Blade Ball Hub by Rem"
+    TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    TitleLabel.TextSize = 16
+
+    local TabFrame = Instance.new("Frame")
+    TabFrame.Name = "TabFrame"
+    TabFrame.Parent = MainFrame
+    TabFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    TabFrame.BorderSizePixel = 0
+    TabFrame.Position = UDim2.new(0, 0, 0, 30)
+    TabFrame.Size = UDim2.new(0, 120, 1, -30)
+
+    local ContentFrame = Instance.new("Frame")
+    ContentFrame.Name = "ContentFrame"
+    ContentFrame.Parent = MainFrame
+    ContentFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+    ContentFrame.BorderSizePixel = 0
+    ContentFrame.Position = UDim2.new(0, 120, 0, 30)
+    ContentFrame.Size = UDim2.new(0, 380, 1, -30)
+
+    -- Abas
+    local CombatTab = Instance.new("TextButton")
+    CombatTab.Name = "CombatTab"
+    CombatTab.Parent = TabFrame
+    CombatTab.BackgroundColor3 = Color3.fromRGB(60, 60, 70)
+    CombatTab.BorderSizePixel = 0
+    CombatTab.Position = UDim2.new(0, 0, 0, 10)
+    CombatTab.Size = UDim2.new(1, -10, 0, 40)
+    CombatTab.Font = Enum.Font.Gotham
+    CombatTab.Text = "Combat"
+    CombatTab.TextColor3 = Color3.fromRGB(255, 255, 255)
+    CombatTab.TextSize = 14
+
+    local VisualsTab = Instance.new("TextButton")
+    VisualsTab.Name = "VisualsTab"
+    VisualsTab.Parent = TabFrame
+    VisualsTab.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    VisualsTab.BorderSizePixel = 0
+    VisualsTab.Position = UDim2.new(0, 0, 0, 60)
+    VisualsTab.Size = UDim2.new(1, -10, 0, 40)
+    VisualsTab.Font = Enum.Font.Gotham
+    VisualsTab.Text = "Visuals"
+    VisualsTab.TextColor3 = Color3.fromRGB(255, 255, 255)
+    VisualsTab.TextSize = 14
+
+    local MiscTab = Instance.new("TextButton")
+    MiscTab.Name = "MiscTab"
+    MiscTab.Parent = TabFrame
+    MiscTab.BackgroundColor3 = Color3.fromRGB(40, 40, 50)
+    MiscTab.BorderSizePixel = 0
+    MiscTab.Position = UDim2.new(0, 0, 0, 110)
+    MiscTab.Size = UDim2.new(1, -10, 0, 40)
+    MiscTab.Font = Enum.Font.Gotham
+    MiscTab.Text = "Misc"
+    MiscTab.TextColor3 = Color3.fromRGB(255, 255, 255)
+    MiscTab.TextSize = 14
+
+    -- Conteúdo das Abas
+    local CombatContent = Instance.new("ScrollingFrame", ContentFrame)
+    CombatContent.Name = "CombatContent"
+    CombatContent.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+    CombatContent.BorderSizePixel = 0
+    CombatContent.Position = UDim2.new(0, 0, 0, 0)
+    CombatContent.Size = UDim2.new(1, 0, 1, 0)
+    CombatContent.Visible = true
+    CombatContent.ScrollBarThickness = 5
+    CombatContent.BackgroundTransparency = 0
+
+    local VisualsContent = Instance.new("ScrollingFrame", ContentFrame)
+    VisualsContent.Name = "VisualsContent"
+    VisualsContent.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+    VisualsContent.BorderSizePixel = 0
+    VisualsContent.Position = UDim2.new(0, 0, 0, 0)
+    VisualsContent.Size = UDim2.new(1, 0, 1, 0)
+    VisualsContent.Visible = false
+    VisualsContent.ScrollBarThickness = 5
+    VisualsContent.BackgroundTransparency = 0
+
+    local MiscContent = Instance.new("ScrollingFrame", ContentFrame)
+    MiscContent.Name = "MiscContent"
+    MiscContent.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+    MiscContent.BorderSizePixel = 0
+    MiscContent.Position = UDim2.new(0, 0, 0, 0)
+    MiscContent.Size = UDim2.new(1, 0, 1, 0)
+    MiscContent.Visible = false
+    MiscContent.ScrollBarThickness = 5
+    MiscContent.BackgroundTransparency = 0
+
+    -- Funções para criar elementos da UI
+    local function createToggle(parent, name, position, callback)
+        local Toggle = Instance.new("TextButton")
+        Toggle.Parent = parent
+        Toggle.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+        Toggle.BorderSizePixel = 0
+        Toggle.Position = position
+        Toggle.Size = UDim2.new(0, 200, 0, 30)
+        Toggle.Font = Enum.Font.Gotham
+        Toggle.Text = name .. ": OFF"
+        Toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Toggle.TextSize = 14
+        
+        local toggled = false
+        Toggle.MouseButton1Click:Connect(function()
+            toggled = not toggled
+            Toggle.Text = name .. ": " .. (toggled and "ON" or "OFF")
+            Toggle.BackgroundColor3 = toggled and Color3.fromRGB(60, 120, 60) or Color3.fromRGB(50, 50, 60)
+            callback(toggled)
+        end)
+        
+        return Toggle
+    end
+
+    local function createSlider(parent, name, position, min, max, default, callback)
+        local Slider = Instance.new("Frame")
+        Slider.Parent = parent
+        Slider.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+        Slider.BorderSizePixel = 0
+        Slider.Position = position
+        Slider.Size = UDim2.new(0, 200, 0, 50)
+        
+        local Label = Instance.new("TextLabel")
+        Label.Parent = Slider
+        Label.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        Label.BackgroundTransparency = 1
+        Label.Position = UDim2.new(0, 10, 0, 5)
+        Label.Size = UDim2.new(1, -20, 0, 15)
+        Label.Font = Enum.Font.Gotham
+        Label.Text = name .. ": " .. default
+        Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+        Label.TextSize = 12
+        Label.TextXAlignment = Enum.TextXAlignment.Left
+        
+        local SliderBar = Instance.new("Frame")
+        SliderBar.Parent = Slider
+        SliderBar.BackgroundColor3 = Color3.fromRGB(70, 70, 80)
+        SliderBar.BorderSizePixel = 0
+        SliderBar.Position = UDim2.new(0, 10, 0, 25)
+        SliderBar.Size = UDim2.new(1, -20, 0, 5)
+        
+        local SliderButton = Instance.new("TextButton")
+        SliderButton.Parent = SliderBar
+        SliderButton.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
+        SliderButton.BorderSizePixel = 0
+        SliderButton.Size = UDim2.new(0, 10, 0, 15)
+        SliderButton.Position = UDim2.new((default - min) / (max - min), -5, 0.5, -7.5)
+        SliderButton.Text = ""
+        
+        local dragging = false
+        
+        SliderButton.MouseButton1Down:Connect(function()
+            dragging = true
+        end)
+        
+        UserInputService.InputChanged:Connect(function(input)
+            if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                local relativeX = math.clamp((input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
+                SliderButton.Position = UDim2.new(relativeX, -5, 0.5, -7.5)
+                local value = min + relativeX * (max - min)
+                Label.Text = name .. ": " .. math.floor(value)
+                callback(value)
+            end
+        end)
+        
+        UserInputService.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                dragging = false
+            end
+        end)
+        
+        return Slider
+    end
+
+    -- Conteúdo da Aba Combat
+    local AutoParry = createToggle(CombatContent, "Auto Parry", UDim2.new(0, 10, 0, 10), function(enabled)
+        _G.Settings.AutoParry = enabled
+        notify("Auto Parry: " .. (enabled and "Ativado" or "Desativado"))
+    end)
+
+    local AutoBlock = createToggle(CombatContent, "Auto Block", UDim2.new(0, 10, 0, 50), function(enabled)
+        _G.Settings.AutoBlock = enabled
+        notify("Auto Block: " .. (enabled and "Ativado" or "Desativado"))
+    end)
+
+    local AutoDash = createToggle(CombatContent, "Auto Dash", UDim2.new(0, 10, 0, 90), function(enabled)
+        _G.Settings.AutoDash = enabled
+        notify("Auto Dash: " .. (enabled and "Ativado" or "Desativado"))
+    end)
+
+    local HitboxExtend = createSlider(CombatContent, "Hitbox Extend", UDim2.new(0, 10, 0, 130), 0, 10, 0, function(value)
+        _G.Settings.HitboxExtend = value
+        notify("Hitbox Extend definido para: " .. math.floor(value))
+    end)
+
+    -- Conteúdo da Aba Visuals
+    local ESP = createToggle(VisualsContent, "ESP", UDim2.new(0, 10, 0, 10), function(enabled)
+        _G.Settings.ESP = enabled
+        notify("ESP: " .. (enabled and "Ativado" or "Desativado"))
+    end)
+
+    local Tracers = createToggle(VisualsContent, "Tracers", UDim2.new(0, 10, 0, 50), function(enabled)
+        _G.Settings.Tracers = enabled
+        notify("Tracers: " .. (enabled and "Ativados" or "Desativados"))
+    end)
+
+    local Chams = createToggle(VisualsContent, "Chams", UDim2.new(0, 10, 0, 90), function(enabled)
+        _G.Settings.Chams = enabled
+        notify("Chams: " .. (enabled and "Ativados" or "Desativados"))
+    end)
+
+    local BallESP = createToggle(VisualsContent, "Ball ESP", UDim2.new(0, 10, 0, 130), function(enabled)
+        _G.Settings.BallESP = enabled
+        notify("Ball ESP: " .. (enabled and "Ativado" or "Desativado"))
+    end)
+
+    -- Conteúdo da Aba Misc
+    local NoClip = createToggle(MiscContent, "No Clip", UDim2.new(0, 10, 0, 10), function(enabled)
+        _G.Settings.NoClip = enabled
+        notify("No Clip: " .. (enabled and "Ativado" or "Desativado"))
+    end)
+
+    local InfiniteJump = createToggle(MiscContent, "Infinite Jump", UDim2.new(0, 10, 0, 50), function(enabled)
+        _G.Settings.InfiniteJump = enabled
+        notify("Infinite Jump: " .. (enabled and "Ativado" or "Desativado"))
+    end)
+
+    local SpeedBoost = createSlider(MiscContent, "Speed Boost", UDim2.new(0, 10, 0, 90), 16, 50, 16, function(value)
+        _G.Settings.SpeedBoost = value
+        notify("Speed Boost definido para: " .. math.floor(value))
+    end)
+
+    local Fly = createToggle(MiscContent, "Fly", UDim2.new(0, 10, 0, 150), function(enabled)
+        _G.Settings.Fly = enabled
+        notify("Fly: " .. (enabled and "Ativado" or "Desativado"))
+    end)
+
+    -- Função para trocar de abas
+    local function switchTab(tab)
+        CombatContent.Visible = (tab == "Combat")
+        VisualsContent.Visible = (tab == "Visuals")
+        MiscContent.Visible = (tab == "Misc")
+        
+        CombatTab.BackgroundColor3 = (tab == "Combat") and Color3.fromRGB(60, 60, 70) or Color3.fromRGB(40, 40, 50)
+        VisualsTab.BackgroundColor3 = (tab == "Visuals") and Color3.fromRGB(60, 60, 70) or Color3.fromRGB(40, 40, 50)
+        MiscTab.BackgroundColor3 = (tab == "Misc") and Color3.fromRGB(60, 60, 70) or Color3.fromRGB(40, 40, 50)
+    end
+
+    CombatTab.MouseButton1Click:Connect(function()
+        switchTab("Combat")
+    end)
+
+    VisualsTab.MouseButton1Click:Connect(function()
+        switchTab("Visuals")
+    end)
+
+    MiscTab.MouseButton1Click:Connect(function()
+        switchTab("Misc")
+    end)
+
+    return ScreenGui
+end
+
+-- Implementação das funcionalidades
+
+-- Auto Parry
+local function autoParry()
+    if not _G.Settings.AutoParry then return end
+    
+    -- Lógica para detectar quando a bola está vindo em direção ao jogador
+    -- e executar a ação de parry automaticamente
+    
+    -- Exemplo de implementação (precisa ser adaptado para o jogo específico)
+    local ball = workspace:FindFirstChild("Ball")
+    if ball and ball.Position then
+        local distance = (ball.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+        if distance < 10 then -- Distância de ativação
+            -- Executar parry
+            game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("Parry"):FireServer()
+        end
+    end
+end
+
+-- Auto Block
+local function autoBlock()
+    if not _G.Settings.AutoBlock then return end
+    
+    -- Lógica para detectar quando a bola está vindo em direção ao jogador
+    -- e executar a ação de block automaticamente
+    
+    -- Exemplo de implementação (precisa ser adaptado para o jogo específico)
+    local ball = workspace:FindFirstChild("Ball")
+    if ball and ball.Position then
+        local distance = (ball.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+        if distance < 15 then -- Distância de ativação
+            -- Executar block
+            game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("Block"):FireServer()
+        end
+    end
+end
+
+-- Auto Dash
+local function autoDash()
+    if not _G.Settings.AutoDash then return end
+    
+    -- Lógica para detectar quando a bola está vindo em direção ao jogador
+    -- e executar a ação de dash automaticamente
+    
+    -- Exemplo de implementação (precisa ser adaptado para o jogo específico)
+    local ball = workspace:FindFirstChild("Ball")
+    if ball and ball.Position then
+        local distance = (ball.Position - LocalPlayer.Character.HumanoidRootPart.Position).Magnitude
+        if distance < 20 then -- Distância de ativação
+            -- Executar dash
+            game:GetService("ReplicatedStorage"):WaitForChild("Events"):WaitForChild("Dash"):FireServer()
+        end
+    end
+end
+
+-- ESP
+local function createESP()
+    if not _G.Settings.ESP then return end
+    
+    -- Limpar ESPs anteriores
+    for _, obj in pairs(workspace.CurrentCamera:GetChildren()) do
+        if obj:IsA("BoxHandleAdornment") and obj.Name == "ESPBox" then
+            obj:Destroy()
+        end
+    end
+    
+    -- Criar ESP para todos os jogadores
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local espBox = Instance.new("BoxHandleAdornment")
+            espBox.Name = "ESPBox"
+            espBox.Parent = workspace.CurrentCamera
+            espBox.Adornee = player.Character.HumanoidRootPart
+            espBox.Size = player.Character.HumanoidRootPart.Size * Vector3.new(2, 2, 2)
+            espBox.Color3 = player.Team and player.Team.TeamColor.Color or Color3.new(1, 0, 0)
+            espBox.Transparency = 0.5
+            espBox.ZIndex = 10
+            espBox.AlwaysOnTop = true
+        end
+    end
+end
+
+-- Tracers
+local function createTracers()
+    if not _G.Settings.Tracers then return end
+    
+    -- Limpar Tracers anteriores
+    for _, obj in pairs(workspace.CurrentCamera:GetChildren()) do
+        if obj:IsA("Frame") and obj.Name == "TracerLine" then
+            obj:Destroy()
+        end
+    end
+    
+    -- Criar Tracers para todos os jogadores
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            local tracer = Instance.new("Frame")
+            tracer.Name = "TracerLine"
+            tracer.Parent = workspace.CurrentCamera
+            tracer.BackgroundColor3 = player.Team and player.Team.TeamColor.Color or Color3.new(1, 0, 0)
+            tracer.BorderSizePixel = 0
+            tracer.BackgroundTransparency = 0.5
+            
+            -- Atualizar posição do tracer a cada frame
+            local connection
+            connection = RunService.RenderStepped:Connect(function()
+                if not _G.Settings.Tracers or not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
+                    tracer:Destroy()
+                    connection:Disconnect()
+                    return
+                end
+                
+                local rootPos = player.Character.HumanoidRootPart.Position
+                local screenPos = workspace.CurrentCamera:WorldToScreenPoint(rootPos)
+                
+                if screenPos.Z > 0 then
+                    tracer.Visible = true
+                    tracer.Position = UDim2.new(0, screenPos.X, 0, screenPos.Y)
+                    tracer.Size = UDim2.new(0, 1, 0, workspace.CurrentCamera.ViewportSize.Y - screenPos.Y)
+                    tracer.Rotation = math.atan2(workspace.CurrentCamera.ViewportSize.X/2 - screenPos.X, workspace.CurrentCamera.ViewportSize.Y/2 - screenPos.Y) * (180/math.pi)
+                else
+                    tracer.Visible = false
+                end
+            end)
+        end
+    end
+end
+
+-- Chams
+local function createChams()
+    if not _G.Settings.Chams then return end
+    
+    -- Limpar Chams anteriores
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            for _, part in pairs(player.Character:GetChildren()) do
+                if part:IsA("BasePart") and part:FindFirstChild("Cham") then
+                    part.Cham:Destroy()
+                end
+            end
+        end
+    end
+    
+    -- Criar Chams para todos os jogadores
+    for _, player in pairs(Players:GetPlayers()) do
+        if player ~= LocalPlayer and player.Character then
+            for _, part in pairs(player.Character:GetChildren()) do
+                if part:IsA("BasePart") then
+                    local cham = Instance.new("BoxHandleAdornment")
+                    cham.Name = "Cham"
+                    cham.Parent = part
+                    cham.Adornee = part
+                    cham.Size = part.Size
+                    cham.Color3 = player.Team and player.Team.TeamColor.Color or Color3.new(1, 0, 0)
+                    cham.Transparency = 0.3
+                    cham.ZIndex = 5
+                    cham.AlwaysOnTop = true
+                end
+            end
+        end
+    end
+end
+
+-- Ball ESP
+local function createBallESP()
+    if not _G.Settings.BallESP then return end
+    
+    -- Limpar Ball ESPs anteriores
+    local ball = workspace:FindFirstChild("Ball")
+    if ball and ball:FindFirstChild("BallESP") then
+        ball.BallESP:Destroy()
+    end
+    
+    -- Criar ESP para a bola
+    if ball then
+        local ballEsp = Instance.new("BoxHandleAdornment")
+        ballEsp.Name = "BallESP"
+        ballEsp.Parent = ball
+        ballEsp.Adornee = ball
+        ballEsp.Size = ball.Size * Vector3.new(1.5, 1.5, 1.5)
+        ballEsp.Color3 = Color3.new(1, 1, 0) -- Amarelo para destacar
+        ballEsp.Transparency = 0.3
+        ballEsp.ZIndex = 10
+        ballEsp.AlwaysOnTop = true
+    end
+end
+
+-- No Clip
+local function noClip()
+    if not _G.Settings.NoClip then return end
+    
+    if LocalPlayer.Character then
+        for _, part in pairs(LocalPlayer.Character:GetChildren()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+end
+
+-- Infinite Jump
+local function infiniteJump()
+    if not _G.Settings.InfiniteJump then return end
+    
+    UserInputService.JumpRequest:Connect(function()
+        if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+            LocalPlayer.Character.Humanoid.Jump = true
+        end
+    end)
+end
+
+-- Speed Boost
+local function speedBoost()
+    if not _G.Settings.SpeedBoost or _G.Settings.SpeedBoost == 16 then return end
+    
+    if LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("Humanoid") then
+        LocalPlayer.Character.Humanoid.WalkSpeed = _G.Settings.SpeedBoost
+    end
+end
+
+-- Fly
+local flyEnabled = false
+local flySpeed = 50
+
+local function fly()
+    if not _G.Settings.Fly then 
+        flyEnabled = false
+        return 
+    end
+    
+    flyEnabled = true
+    
+    local character = LocalPlayer.Character
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+    local rootPart = character and character:FindFirstChild("HumanoidRootPart")
+    
+    if not humanoid or not rootPart then return end
+    
+    local bv = Instance.new("BodyVelocity")
+    bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    bv.P = 5000
+    bv.Parent = rootPart
+    
+    local bg = Instance.new("BodyGyro")
+    bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+    bg.P = 5000
+    bg.Parent = rootPart
+    
+    local connection
+    connection = RunService.RenderStepped:Connect(function()
+        if not _G.Settings.Fly or not character or not humanoid or not rootPart then
+            bv:Destroy()
+            bg:Destroy()
+            connection:Disconnect()
+            return
+        end
+        
+        humanoid.PlatformStand = true
+        
+        local moveDirection = humanoid.MoveDirection
+        if moveDirection ~= Vector3.new(0, 0, 0) then
+            bv.Velocity = moveDirection * flySpeed
+        else
+            bv.Velocity = Vector3.new(0, 0, 0)
+        end
+        
+        bg.CFrame = workspace.CurrentCamera.CFrame
+    end)
+end
+
+-- Inicialização
+notify("Inicializando Blade Ball Hub...")
+
+-- Criar interface
+local ui = createUI()
+
+-- Loop principal para executar as funcionalidades
+game:GetService("RunService").Heartbeat:Connect(function()
+    autoParry()
+    autoBlock()
+    autoDash()
+    createESP()
+    createTracers()
+    createChams()
+    createBallESP()
+    noClip()
+    speedBoost()
+end)
+
+-- Inicializar funcionalidades especiais
+infiniteJump()
+fly()
+
+notify("Blade Ball Hub carregado com sucesso! Feito com dedicação para Light.")
